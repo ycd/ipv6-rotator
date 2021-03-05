@@ -1,6 +1,5 @@
 use std::{io::Stderr, process::exit};
 
-use log::debug;
 use rand::prelude::SliceRandom;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -145,7 +144,7 @@ impl Rotator<'_> {
         let new_ip = self.generate_ip();
         self.addresses.push(new_ip.clone());
 
-        let command = match std::process::Command::new("ip")
+        let _ = match std::process::Command::new("ip")
             .arg("-6")
             .arg("addr")
             .arg("add")
@@ -154,13 +153,12 @@ impl Rotator<'_> {
             .arg(&self.device)
             .output()
         {
-            Ok(out) => out,
+            Ok(_) => println!("[ADD] {}", &new_ip),
             Err(why) => {
                 println!("[ERROR] unable to add new ip addr: {}", why);
                 exit(1)
             }
         };
-        println!("[ADD] {}", &new_ip);
 
         Ok(())
     }
@@ -177,7 +175,7 @@ impl Rotator<'_> {
                 .arg(&self.device)
                 .output()
             {
-                Ok(out) => {
+                Ok(_) => {
                     println!("[DEL] {}", &addr);
                 }
                 Err(why) => {
@@ -196,7 +194,8 @@ impl Rotator<'_> {
 mod tests {
     use super::*;
 
-    fn test_builder_success() {
+    #[test]
+    fn builder_success_test() {
         let rotator = self::Rotator::builder()
             .device("eth0")
             .network("2001:db8:0000:0000")
