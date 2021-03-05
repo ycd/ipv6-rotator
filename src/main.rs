@@ -7,7 +7,7 @@ use rotator::rotator::Rotator;
 
 fn main() {
     // Set level filter to minimum to log everything.
-    log::LevelFilter::to_level(&log::LevelFilter::Trace);
+    log::set_max_level(log::LevelFilter::Debug);
 
     let matches = App::new("rotator")
         .version("0.1")
@@ -91,8 +91,9 @@ fn main() {
         .sleep_time(time)
         .build();
 
-    println!("{:#?}", &rotator);
-    println!("{:?}", &rotator.generate_ip());
-    println!("{:?}", &rotator.generate_ip());
-    println!("{:?}", &rotator.generate_ip());
+    &rotator.add_ip();
+    &rotator.add_ip();
+    &rotator.add_ip();
+
+    &rotator.cleanup_addresses();
 }

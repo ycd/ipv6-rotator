@@ -1,6 +1,6 @@
 use std::{io::Stderr, process::exit};
 
-use log::info;
+use log::debug;
 use rand::prelude::SliceRandom;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -89,31 +89,34 @@ impl Rotator<'_> {
     pub fn generate_ip(&mut self) -> String {
         match self.block {
             IpBlock::CIDR32 => format!(
-                "{}:{}:{}:{}:{}:{}:{}",
+                "{}:{}:{}:{}:{}:{}:{}/{}",
                 &self.network,
                 self.gen(),
                 self.gen(),
                 self.gen(),
                 self.gen(),
                 self.gen(),
-                self.gen()
+                self.gen(),
+                "32"
             ),
             IpBlock::CIDR48 => format!(
-                "{}:{}:{}:{}:{}:{}",
+                "{}:{}:{}:{}:{}:{}/{}",
                 &self.network,
                 self.gen(),
                 self.gen(),
                 self.gen(),
                 self.gen(),
-                self.gen()
+                self.gen(),
+                "48"
             ),
             IpBlock::CIDR64 => format!(
-                "{}:{}:{}:{}:{}",
+                "{}:{}:{}:{}:{}/{}",
                 &self.network,
                 self.gen(),
                 self.gen(),
                 self.gen(),
-                self.gen()
+                self.gen(),
+                "64"
             ),
         }
     }
@@ -138,7 +141,7 @@ impl Rotator<'_> {
         .collect()
     }
 
-    fn add_ip(&mut self) -> Result<(), Stderr> {
+    pub fn add_ip(&mut self) -> Result<(), Stderr> {
         let new_ip = self.generate_ip();
         self.addresses.push(new_ip.clone());
 
@@ -153,32 +156,32 @@ impl Rotator<'_> {
         {
             Ok(out) => out,
             Err(why) => {
-                info!("[ERROR] unable to add new ip addr: {}", why);
+                println!("[ERROR] unable to add new ip addr: {}", why);
                 exit(1)
             }
         };
-        info!("[ADD] {}", &new_ip);
+        println!("[ADD] {}", &new_ip);
 
         Ok(())
     }
 
     /// Delete all the addresses that is inside addresses
-    fn cleanup_addresses(&mut self) -> Result<(), Stderr> {
-        let _ = self.addresses.iter().map(|addr| {
+    pub fn cleanup_addresses(&mut self) -> Result<(), Stderr> {
+        self.addresses.iter().for_each(|addr| {
             match std::process::Command::new("ip")
                 .arg("-6")
                 .arg("addr")
-                .arg("add")
-                .arg(&addr)
+                .arg("del")
+                .arg(addr)
                 .arg("dev")
                 .arg(&self.device)
                 .output()
             {
                 Ok(out) => {
-                    info!("[DEL] {}", &addr);
+                    println!("[DEL] {}", &addr);
                 }
                 Err(why) => {
-                    info!("[ERROR] unable to delete ip addr({}): {}", &addr, why);
+                    eprintln!("[ERROR] unable to delete ip addr({}): {}", &addr, why);
                     exit(1)
                 }
             }
