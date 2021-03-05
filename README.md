@@ -25,8 +25,6 @@ $ rotator -h
 
 ```s
 rotator 0.1
-Yagiz Degirmenci. <yagizcanilbey1903@gmail.com>
-Rotate IPv6 addresses
 
 USAGE:
     rotator [OPTIONS] --interface <INTERFACE> --network <ADDRESS>
