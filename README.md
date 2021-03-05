@@ -5,6 +5,7 @@
 
 Rotate over /32 - /48 - /64 CIDR block of IPv6 addresses by randomly generating them.
 
+![Should be gif here](assets/rotator.gif)
 
 
 </div>
