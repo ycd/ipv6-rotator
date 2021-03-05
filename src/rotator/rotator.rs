@@ -1,3 +1,6 @@
+use std::{io::Stderr, process::exit};
+
+use log::info;
 use rand::prelude::SliceRandom;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -83,7 +86,7 @@ impl<'a> Rotator<'a> {
 impl Rotator<'_> {
     pub fn rotate(&mut self) {}
 
-    pub fn create_unique_ip(&mut self) -> String {
+    pub fn generate_ip(&mut self) -> String {
         match self.block {
             IpBlock::CIDR32 => format!(
                 "{}:{}:{}:{}:{}:{}:{}",
@@ -133,6 +136,56 @@ impl Rotator<'_> {
         .iter()
         .flat_map(|s| s.chars())
         .collect()
+    }
+
+    fn add_ip(&mut self) -> Result<(), Stderr> {
+        let new_ip = self.generate_ip();
+        self.addresses.push(new_ip.clone());
+
+        let command = match std::process::Command::new("ip")
+            .arg("-6")
+            .arg("addr")
+            .arg("add")
+            .arg(&new_ip)
+            .arg("dev")
+            .arg(&self.device)
+            .output()
+        {
+            Ok(out) => out,
+            Err(why) => {
+                info!("[ERROR] unable to add new ip addr: {}", why);
+                exit(1)
+            }
+        };
+        info!("[ADD] {}", &new_ip);
+
+        Ok(())
+    }
+
+    /// Delete all the addresses that is inside addresses
+    fn cleanup_addresses(&mut self) -> Result<(), Stderr> {
+        let _ = self.addresses.iter().map(|addr| {
+            match std::process::Command::new("ip")
+                .arg("-6")
+                .arg("addr")
+                .arg("add")
+                .arg(&addr)
+                .arg("dev")
+                .arg(&self.device)
+                .output()
+            {
+                Ok(out) => {
+                    info!("[DEL] {}", &addr);
+                }
+                Err(why) => {
+                    info!("[ERROR] unable to delete ip addr({}): {}", &addr, why);
+                    exit(1)
+                }
+            }
+        });
+
+        self.addresses.clear();
+        Ok(())
     }
 }
 

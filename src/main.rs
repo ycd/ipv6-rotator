@@ -92,7 +92,7 @@ fn main() {
         .build();
 
     println!("{:#?}", &rotator);
-    println!("{:?}", &rotator.create_unique_ip());
-    println!("{:?}", &rotator.create_unique_ip());
-    println!("{:?}", &rotator.create_unique_ip());
+    println!("{:?}", &rotator.generate_ip());
+    println!("{:?}", &rotator.generate_ip());
+    println!("{:?}", &rotator.generate_ip());
 }
