@@ -1,4 +1,4 @@
-use std::{io::Stderr, process::exit};
+use std::{io::Stderr, process::exit, thread::sleep};
 
 use rand::prelude::SliceRandom;
 
@@ -83,7 +83,16 @@ impl<'a> Rotator<'a> {
 }
 
 impl Rotator<'_> {
-    pub fn rotate(&mut self) {}
+    pub fn rotate(&mut self) {
+        loop {
+            for _ in 0..self.count {
+                self.add_ip().unwrap();
+            }
+
+            sleep(std::time::Duration::from_secs(self.sleep_time as u64));
+            self.cleanup_addresses().unwrap();
+        }
+    }
 
     pub fn generate_ip(&mut self) -> String {
         match self.block {

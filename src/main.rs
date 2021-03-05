@@ -50,7 +50,9 @@ fn main() {
                 .takes_value(true),
         )
         .arg(
-            Arg::new("time")
+            Arg::new("sleep")
+                .short('s')
+                .long("sleep")
                 .about("Rotate to a new IP in x seconds")
                 .takes_value(true)
                 .default_value("10"),
@@ -59,8 +61,8 @@ fn main() {
 
     // interface is a device actually, used as device "internally".
     let device = matches.value_of("interface").unwrap();
-    let time = matches
-        .value_of("time")
+    let sleep = matches
+        .value_of("sleep")
         .unwrap()
         .parse::<u16>()
         .expect("time is not a valid integer");
@@ -88,12 +90,8 @@ fn main() {
         .network(network)
         .count(count)
         .block(block)
-        .sleep_time(time)
+        .sleep_time(sleep)
         .build();
 
-    &rotator.add_ip();
-    &rotator.add_ip();
-    &rotator.add_ip();
-
-    &rotator.cleanup_addresses();
+    &rotator.rotate();
 }
